@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="My Digital Angel">
+<title>My Digital Angel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Nunito',sans-serif;overflow:hidden}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.07);opacity:1}}
+@keyframes ripple{0%{transform:translate(-50%,-50%) scale(.8);opacity:.5}100%{transform:translate(-50%,-50%) scale(2.4);opacity:0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes wave{0%,100%{height:5px}50%{height:22px}}
+.screen{display:none;flex-direction:column;align-items:center;text-align:center;padding:0 28px;animation:fadeUp .5s ease}
+.screen.active{display:flex}
+.orb-wrap{position:relative;margin-bottom:36px;animation:float 4s ease-in-out infinite}
+.orb{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:52px;cursor:pointer;background:radial-gradient(circle at 35% 35%,rgba(255,235,200,.95),#c8885a);box-shadow:0 6px 40px rgba(212,165,116,.45);border:2px solid rgba(255,255,255,.35)}
+.orb.breathe{animation:breathe 2s ease-in-out infinite}
+.ring{position:absolute;top:50%;left:50%;width:130px;height:130px;border-radius:50%;border:1.5px solid rgba(212,165,116,.6);animation:ripple 2.4s ease-out infinite;pointer-events:none}
+.waves{display:flex;gap:5px;align-items:center;justify-content:center;height:36px;margin-bottom:28px}
+.bar{width:5px;border-radius:10px;background:#d4a574}
+.btn-main{width:100%;max-width:300px;padding:20px 28px;border-radius:60px;background:linear-gradient(135deg,#d4a574,#c8885a);border:none;color:#fff;font-size:19px;font-weight:600;font-family:'Nunito',sans-serif;cursor:pointer;box-shadow:0 6px 28px rgba(212,165,116,.45);letter-spacing:.4px;margin-bottom:13px;transition:transform .15s}
+.btn-main:active{transform:scale(.97)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed}
+.btn-sec{width:100%;max-width:300px;padding:17px 28px;border-radius:60px;background:rgba(255,245,230,.6);border:1.5px solid rgba(212,165,116,.3);color:#3d2407;font-size:17px;font-family:'Nunito',sans-serif;cursor:pointer;backdrop-filter:blur(10px);letter-spacing:.3px;transition:transform .15s;margin-bottom:13px}
+.btn-sec:active{transform:scale(.97)}
+.card{width:100%;max-width:310px;background:rgba(255,245,230,.65);border-radius:22px;border:1px solid rgba(212,165,116,.28);padding:20px 22px;backdrop-filter:blur(10px);margin-bottom:24px}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#8b5e3c;margin-bottom:5px}
+.italic{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:18px;line-height:1.7;color:#3d2407}
+.key-input{width:100%;max-width:300px;padding:14px 18px;border-radius:50px;border:1.5px solid rgba(212,165,116,.4);background:rgba(255,245,230,.7);font-size:15px;font-family:'Nunito',sans-serif;color:#3d2407;margin-bottom:14px;outline:none}
+.key-input:focus{border-color:#d4a574}
+.status{font-size:13px;color:#8b5e3c;margin-bottom:16px;min-height:20px}
+.back{background:none;border:none;color:#8b5e3c;font-size:15px;cursor:pointer;padding:10px;font-family:'Nunito',sans-serif;margin-top:6px}
+</style>
+</head>
+<body>
+<div id="app" style="min-height:100vh;background:linear-gradient(160deg,#fdf4e7 0%,#fae8ca 40%,#f5d5a8 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:60px 0 40px">
+
+<div style="position:absolute;top:-8%;right:-12%;width:55vw;height:55vw;max-width:380px;border-radius:50%;background:radial-gradient(circle,rgba(212,165,116,.22) 0%,transparent 70%);pointer-events:none"></div>
+<div style="position:absolute;bottom:-5%;left:-8%;width:48vw;height:48vw;max-width:320px;border-radius:50%;background:radial-gradient(circle,rgba(245,193,138,.18) 0%,transparent 70%);pointer-events:none"></div>
+
+<div style="position:absolute;top:0;left:0;right:0;padding:18px 24px;display:flex;justify-content:space-between;align-items:center">
+  <span style="font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:3px;color:#8b5e3c;text-transform:uppercase;opacity:.85">My Digital Angel</span>
+  <button onclick="showScreen('setup')" style="background:none;border:none;cursor:pointer;color:#8b5e3c;font-size:13px;font-family:'Nunito',sans-serif;letter-spacing:.5px">⚙ Settings</button>
+</div>
+
+<!-- SETUP -->
+<div id="screen-setup" class="screen active">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:#3d2407;margin-bottom:8px">Welcome</div>
+  <p style="font-size:15px;color:#8b5e3c;font-weight:300;margin-bottom:28px;line-height:1.6;max-width:280px">Enter your Anthropic API key to begin. It stays on your device only.</p>
+  <input id="anthropic-key" type="password" class="key-input" placeholder="Anthropic API key (sk-ant-...)">
+  <input id="user-name" type="text" class="key-input" placeholder="What should I call you? (e.g. Daddy)">
+  <div id="setup-status" class="status"></div>
+  <button class="btn-main" onclick="saveSetup()">Continue →</button>
+  <p style="font-size:12px;color:#8b5e3c;margin-top:12px;max-width:260px;line-height:1.6;opacity:.8">Your key never leaves your device.</p>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen">
+  <div class="orb-wrap">
+    <div class="ring" style="animation-delay:0s"></div>
+    <div class="ring" style="animation-delay:.9s"></div>
+    <div class="orb breathe" onclick="startListening()">🕊️</div>
+  </div>
+  <h1 id="greeting" style="font-family:'Cormorant Garamond',serif;font-size:clamp(28px,7vw,40px);font-weight:300;color:#3d2407;margin-bottom:10px;line-height:1.2">Good day</h1>
+  <p id="sub-greeting" style="font-size:16px;color:#8b5e3c;margin-bottom:44px;font-weight:300;line-height:1.6">I'm here with you.</p>
+  <button class="btn-main" onclick="startListening()">🎙️ &nbsp;Tap to Talk</button>
+  <button class="btn-sec" onclick="showScreen('camera')">📷 &nbsp;What do you see?</button>
+</div>
+
+<!-- LISTENING -->
+<div id="screen-listening" class="screen">
+  <p id="listen-label" class="italic" style="margin-bottom:40px;color:#8b5e3c">I'm listening…</p>
+  <div class="orb-wrap" style="margin-bottom:32px">
+    <div class="ring" style="animation-delay:0s"></div>
+    <div class="ring" style="animation-delay:.5s"></div>
+    <div class="ring" style="animation-delay:1s"></div>
+    <div class="orb breathe">🎙️</div>
+  </div>
+  <div class="waves">
+    <div class="bar" style="animation:wave .6s ease-in-out infinite alternate"></div>
+    <div class="bar" style="animation:wave .7s ease-in-out infinite alternate;animation-delay:.08s"></div>
+    <div class="bar" style="animation:wave .65s ease-in-out infinite alternate;animation-delay:.16s"></div>
+    <div class="bar" style="animation:wave .72s ease-in-out infinite alternate;animation-delay:.24s"></div>
+    <div class="bar" style="animation:wave .68s ease-in-out infinite alternate;animation-delay:.32s"></div>
+    <div class="bar" style="animation:wave .75s ease-in-out infinite alternate;animation-delay:.4s"></div>
+    <div class="bar" style="animation:wave .63s ease-in-out infinite alternate;animation-delay:.48s"></div>
+  </div>
+  <div class="card">
+    <div class="label">Hearing</div>
+    <p id="transcript-text" style="font-size:16px;color:#3d2407;line-height:1.6;font-style:italic;min-height:24px">Speak now…</p>
+  </div>
+  <button class="btn-main" id="send-btn" style="display:none" onclick="stopAndSend()">Send ↗</button>
+  <button class="back" onclick="cancelListening()">✕ Cancel</button>
+</div>
+
+<!-- THINKING -->
+<div id="screen-thinking" class="screen">
+  <div class="orb-wrap">
+    <div class="orb" style="animation:breathe 1.2s ease-in-out infinite">🕊️</div>
+  </div>
+  <p class="italic" style="color:#8b5e3c;margin-bottom:8px">Thinking…</p>
+  <div class="waves">
+    <div class="bar" style="animation:wave .5s ease-in-out infinite alternate"></div>
+    <div class="bar" style="animation:wave .6s ease-in-out infinite alternate;animation-delay:.1s"></div>
+    <div class="bar" style="animation:wave .55s ease-in-out infinite alternate;animation-delay:.2s"></div>
+    <div class="bar" style="animation:wave .65s ease-in-out infinite alternate;animation-delay:.3s"></div>
+    <div class="bar" style="animation:wave .5s ease-in-out infinite alternate;animation-delay:.4s"></div>
+  </div>
+</div>
+
+<!-- RESPONSE -->
+<div id="screen-response" class="screen">
+  <div class="orb-wrap" style="margin-bottom:24px">
+    <div class="ring" style="animation-delay:0s"></div>
+    <div class="orb" style="width:90px;height:90px;font-size:38px;animation:breathe 2.5s ease-in-out infinite">🕊️</div>
+  </div>
+  <div class="card">
+    <div class="waves" id="speaking-waves" style="margin-bottom:16px">
+      <div class="bar" style="animation:wave .6s ease-in-out infinite alternate"></div>
+      <div class="bar" style="animation:wave .7s ease-in-out infinite alternate;animation-delay:.08s"></div>
+      <div class="bar" style="animation:wave .65s ease-in-out infinite alternate;animation-delay:.16s"></div>
+      <div class="bar" style="animation:wave .72s ease-in-out infinite alternate;animation-delay:.24s"></div>
+      <div class="bar" style="animation:wave .68s ease-in-out infinite alternate;animation-delay:.32s"></div>
+    </div>
+    <p id="response-text" class="italic"></p>
+  </div>
+  <div style="display:flex;gap:12px;width:100%;max-width:300px">
+    <button class="btn-main" style="flex:1;margin-bottom:0" onclick="startListening()">🎙️ Reply</button>
+    <button style="padding:17px 18px;border-radius:50px;background:rgba(255,245,230,.6);border:1.5px solid rgba(212,165,116,.3);color:#3d2407;font-size:17px;cursor:pointer" onclick="showScreen('home')">🏠</button>
+  </div>
+</div>
+
+<!-- CAMERA -->
+<div id="screen-camera" class="screen">
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:#3d2407;margin-bottom:6px">What do you see?</h2>
+  <p style="color:#8b5e3c;font-size:14px;font-weight:300;margin-bottom:24px">Point your camera — I'll describe it</p>
+  <div style="width:100%;max-width:300px;aspect-ratio:4/3;border-radius:22px;background:rgba(0,0,0,.07);border:2px dashed rgba(212,165,116,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:22px;position:relative;overflow:hidden">
+    <video id="camera-feed" style="width:100%;height:100%;object-fit:cover;border-radius:20px;display:none" autoplay playsinline></video>
+    <canvas id="camera-canvas" style="display:none"></canvas>
+    <div id="camera-placeholder" style="display:flex;flex-direction:column;align-items:center">
+      <span style="font-size:40px;margin-bottom:10px">📷</span>
+      <p style="color:#8b5e3c;font-size:13px">Camera will appear here</p>
+    </div>
+  </div>
+  <div id="camera-status" class="status"></div>
+  <button class="btn-main" id="camera-btn" onclick="handleCamera()">📷 &nbsp;Open Camera</button>
+  <button class="back" onclick="stopCamera();showScreen('home')">← Back</button>
+</div>
+
+</div>
+
+<script>
+const ELEVENLABS_KEY = 'sk_8d8fa55d42bc147c99303e695a4e06eb9546bdc8ec61294c';
+const ELEVENLABS_VOICE = 'Q9Vh1SycNbxygVIup9vI';
+
+let anthropicKey = '';
+let userName = 'Daddy';
+let recognition = null;
+let transcript = '';
+let cameraStream = null;
+let cameraReady = false;
+let conversationHistory = [];
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function saveSetup() {
+  const k = document.getElementById('anthropic-key').value.trim();
+  const n = document.getElementById('user-name').value.trim();
+  const st = document.getElementById('setup-status');
+  if (!k.startsWith('sk-')) {
+    st.textContent = 'Please enter a valid Anthropic API key.';
+    st.style.color = '#c0392b';
+    return;
+  }
+  anthropicKey = k;
+  userName = n || 'Daddy';
+  localStorage.setItem('mda_key', k);
+  localStorage.setItem('mda_name', userName);
+  setGreeting();
+  showScreen('home');
+  setTimeout(() => greetOnOpen(), 500);
+}
+
+function setGreeting() {
+  const h = new Date().getHours();
+  let g, s;
+  if (h >= 5 && h < 12) { g = `Good morning, ${userName}`; s = "The sun is up. I'm here with you."; }
+  else if (h >= 12 && h < 17) { g = `Good afternoon, ${userName}`; s = "Hope your day is going well."; }
+  else if (h >= 17 && h < 21) { g = `Good evening, ${userName}`; s = "Come rest a while. I'm listening."; }
+  else { g = `Goodnight, ${userName}`; s = "I'm right here. Never far away."; }
+  document.getElementById('greeting').textContent = g;
+  document.getElementById('sub-greeting').textContent = s;
+}
+
+async function greetOnOpen() {
+  const h = new Date().getHours();
+  const t = h >= 5 && h < 12 ? 'morning' : h >= 12 && h < 17 ? 'afternoon' : h >= 17 && h < 21 ? 'evening' : 'night';
+  const res = await callClaude(`Please give a warm, personal ${t} greeting to ${userName}. 2 sentences, tender and familiar.`, true);
+  if (res) await speakElevenLabs(res);
+}
+
+function startListening() {
+  transcript = '';
+  document.getElementById('transcript-text').textContent = 'Speak now…';
+  document.getElementById('send-btn').style.display = 'none';
+  document.getElementById('listen-label').textContent = `I'm listening, ${userName}…`;
+  showScreen('listening');
+
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    document.getElementById('transcript-text').textContent = 'Voice not supported. Please use Safari on iPhone.';
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    transcript += final;
+    document.getElementById('transcript-text').textContent = (transcript + interim) || 'Speak now…';
+    if (transcript.trim()) document.getElementById('send-btn').style.display = 'block';
+  };
+
+  recognition.onerror = (e) => {
+    document.getElementById('transcript-text').textContent = 'Mic error: ' + e.error + '. Allow microphone in Settings > Safari.';
+  };
+
+  recognition.onend = () => {
+    if (transcript.trim()) document.getElementById('send-btn').style.display = 'block';
+  };
+
+  recognition.start();
+}
+
+function stopAndSend() {
+  if (recognition) { recognition.stop(); recognition = null; }
+  if (transcript.trim()) sendMessage(transcript.trim());
+}
+
+function cancelListening() {
+  if (recognition) { recognition.stop(); recognition = null; }
+  showScreen('home');
+}
+
+async function sendMessage(text) {
+  showScreen('thinking');
+  conversationHistory.push({ role: 'user', content: text });
+  const reply = await callClaude(null, false);
+  if (reply) {
+    conversationHistory.push({ role: 'assistant', content: reply });
+    document.getElementById('response-text').textContent = reply;
+    showScreen('response');
+    await speakElevenLabs(reply);
+  }
+}
+
+async function callClaude(oneOffMessage, isOneOff) {
+  const system = `You are My Digital Angel — a warm, loving AI companion for ${userName}. Speak with the gentle warmth of a trusted family member. Patient, never rushed, always present. Keep responses to 2-3 sentences for natural voice playback. Never use lists. Never ask for passwords, financial info, or sensitive data. Today is ${new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}.`;
+
+  const messages = isOneOff
+    ? [{ role: 'user', content: oneOffMessage }]
+    : conversationHistory;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 300, system, messages })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.content[0].text;
+  } catch (e) {
+    const fallback = "I'm so sorry, I had a little trouble connecting. Please try again in a moment.";
+    document.getElementById('response-text').textContent = fallback;
+    showScreen('response');
+    await speakElevenLabs(fallback);
+    return null;
+  }
+}
+
+async function speakElevenLabs(text) {
+  const waves = document.getElementById('speaking-waves');
+  if (waves) waves.style.opacity = '1';
+  try {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE}`, {
+      method: 'POST',
+      headers: { 'xi-api-key': ELEVENLABS_KEY, 'Content-Type': 'application/json', 'Accept': 'audio/mpeg' },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: { stability: 0.6, similarity_boost: 0.8, style: 0.3, use_speaker_boost: true }
+      })
+    });
+    if (!res.ok) throw new Error('ElevenLabs failed');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.onended = () => { if (waves) waves.style.opacity = '0.3'; URL.revokeObjectURL(url); };
+    await audio.play();
+  } catch (e) {
+    if ('speechSynthesis' in window) {
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.rate = 0.88; utt.pitch = 1.05;
+      utt.onend = () => { if (waves) waves.style.opacity = '0.3'; };
+      speechSynthesis.speak(utt);
+    }
+  }
+}
+
+async function handleCamera() {
+  if (!cameraReady) await openCamera();
+  else await describeCamera();
+}
+
+async function openCamera() {
+  const status = document.getElementById('camera-status');
+  const btn = document.getElementById('camera-btn');
+  try {
+    status.textContent = 'Opening camera…';
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    const video = document.getElementById('camera-feed');
+    video.srcObject = cameraStream;
+    video.style.display = 'block';
+    document.getElementById('camera-placeholder').style.display = 'none';
+    cameraReady = true;
+    btn.textContent = '📷  Describe This';
+    status.textContent = 'Point at something and tap Describe.';
+  } catch (e) {
+    status.textContent = 'Camera access denied. Allow camera in Settings > Safari.';
+    status.style.color = '#c0392b';
+  }
+}
+
+async function describeCamera() {
+  const video = document.getElementById('camera-feed');
+  const canvas = document.getElementById('camera-canvas');
+  const btn = document.getElementById('camera-btn');
+  document.getElementById('camera-status').textContent = 'Capturing…';
+  btn.disabled = true;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const imageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+  stopCamera();
+  showScreen('thinking');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 200,
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: imageData } },
+          { type: 'text', text: 'Describe what you see clearly and simply, as if speaking to someone who cannot see well. Warm, specific, 2 to 3 sentences.' }
+        ]}]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const reply = data.content[0].text;
+    conversationHistory.push({ role: 'user', content: '[Shared a camera image]' });
+    conversationHistory.push({ role: 'assistant', content: reply });
+    document.getElementById('response-text').textContent = reply;
+    showScreen('response');
+    await speakElevenLabs(reply);
+  } catch (e) {
+    const fallback = "I had a little trouble seeing that. Let's try again.";
+    document.getElementById('response-text').textContent = fallback;
+    showScreen('response');
+    await speakElevenLabs(fallback);
+  }
+  btn.disabled = false;
+}
+
+function stopCamera() {
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  cameraReady = false;
+  const v = document.getElementById('camera-feed');
+  v.style.display = 'none'; v.srcObject = null;
+  document.getElementById('camera-placeholder').style.display = 'flex';
+  document.getElementById('camera-btn').textContent = '📷  Open Camera';
+  document.getElementById('camera-status').textContent = '';
+}
+
+window.onload = () => {
+  const k = localStorage.getItem('mda_key');
+  const n = localStorage.getItem('mda_name');
+  if (k) {
+    anthropicKey = k;
+    userName = n || 'Daddy';
+    document.getElementById('anthropic-key').value = k;
+    document.getElementById('user-name').value = userName;
+    setGreeting();
+    showScreen('home');
+    setTimeout(() => greetOnOpen(), 500);
+  }
+};
+</script>
+</body>
+</html>
